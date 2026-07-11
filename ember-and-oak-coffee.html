@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMBER & OAK — The Coffee Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0b0906;
+  --char:#17110d;
+  --char-2:#1f1712;
+  --copper:#b5652b;
+  --amber:#e8a33d;
+  --cream:#efe6d8;
+  --cream-dim:#c9beac;
+  --gold:#c9a227;
+  --line: rgba(239,230,216,0.12);
+  --radius: 14px;
+  --ease: cubic-bezier(.16,.84,.44,1);
+}
+[data-mode="day"]{
+  --void:#efe6d8;
+  --char:#f7f1e6;
+  --char-2:#eee3d0;
+  --cream:#1c140f;
+  --cream-dim:#4a3a2c;
+  --line: rgba(28,20,15,0.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{background:var(--void);}
+body{
+  background:var(--void);
+  color:var(--cream);
+  font-family:'Sora',sans-serif;
+  font-weight:400;
+  overflow-x:hidden;
+  transition:background .6s var(--ease), color .6s var(--ease);
+}
+::selection{background:var(--copper);color:var(--void);}
+::-webkit-scrollbar{width:0;height:0;display:none;}
+h1,h2,h3,.display{
+  font-family:'Fraunces',serif;
+  font-weight:500;
+  letter-spacing:-0.01em;
+}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px;}
+img{max-width:100%;display:block;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
+}
+
+/* ---------- top nav ---------- */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 32px;
+  mix-blend-mode:difference;
+}
+.nav .brand{
+  font-family:'Fraunces',serif; font-size:19px; font-weight:600; letter-spacing:0.02em;
+  color:#efe6d8;
+}
+.nav .brand span{color:#e8a33d;}
+.nav-controls{display:flex; align-items:center; gap:18px;}
+.icon-btn{
+  width:38px;height:38px;border-radius:50%;
+  border:1px solid rgba(239,230,216,0.3);
+  display:flex;align-items:center;justify-content:center;
+  color:#efe6d8; font-size:14px; transition:all .3s var(--ease);
+}
+.icon-btn:hover{background:#efe6d8;color:#0b0906;}
+.icon-btn:focus-visible, a:focus-visible, button:focus-visible{outline:2px solid var(--amber); outline-offset:3px;}
+.lang-btn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;}
+
+.menu-toggle{display:none;}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative; height:100vh; min-height:680px;
+  display:flex; align-items:flex-end;
+  overflow:hidden;
+}
+#hero-canvas{position:absolute; inset:0; z-index:1;}
+.hero-veil{
+  position:absolute; inset:0; z-index:2; pointer-events:none;
+  background:linear-gradient(180deg, rgba(11,9,6,0.15) 0%, rgba(11,9,6,0) 35%, rgba(11,9,6,0.75) 100%);
+}
+[data-mode="day"] .hero-veil{
+  background:linear-gradient(180deg, rgba(239,230,216,0.1) 0%, rgba(239,230,216,0) 35%, rgba(239,230,216,0.85) 100%);
+}
+.hero-content{
+  position:relative; z-index:3; width:100%;
+  padding:0 32px 72px;
+}
+.hero-inner{max-width:1240px;margin:0 auto; width:100%;}
+.hero-headline{
+  font-size:clamp(44px, 7.2vw, 104px);
+  line-height:0.98;
+  max-width:14ch;
+  color:#f4ede2;
+}
+[data-mode="day"] .hero-headline{color:#1c140f;}
+.hero-headline em{font-style:italic; color:var(--amber);}
+.hero-sub{
+  margin-top:22px; max-width:440px; font-size:16px; line-height:1.6;
+  color:rgba(244,237,226,0.75);
+}
+[data-mode="day"] .hero-sub{color:rgba(28,20,15,0.7);}
+.hero-ctas{display:flex; gap:14px; margin-top:34px; flex-wrap:wrap;}
+.btn{
+  padding:15px 28px; border-radius:100px; font-size:14px; font-weight:500;
+  display:inline-flex; align-items:center; gap:10px; transition:all .35s var(--ease);
+}
+.btn-solid{background:var(--amber); color:#1c140f;}
+.btn-solid:hover{background:var(--cream); transform:translateY(-2px);}
+.btn-ghost{border:1px solid rgba(244,237,226,0.35); color:#f4ede2;}
+[data-mode="day"] .btn-ghost{border:1px solid rgba(28,20,15,0.3); color:#1c140f;}
+.btn-ghost:hover{border-color:var(--amber); color:var(--amber);}
+
+.scroll-cue{
+  position:absolute; z-index:3; right:32px; bottom:36px;
+  writing-mode:vertical-rl; font-family:'JetBrains Mono',monospace;
+  font-size:11px; letter-spacing:0.2em; color:rgba(244,237,226,0.55);
+  display:flex; align-items:center; gap:10px;
+}
+[data-mode="day"] .scroll-cue{color:rgba(28,20,15,0.55);}
+.scroll-cue::after{content:''; width:1px; height:44px; background:currentColor; opacity:0.5;}
+
+/* ---------- section shell ---------- */
+section{position:relative; padding:140px 0;}
+.section-head{margin-bottom:64px; max-width:640px;}
+.section-head h2{font-size:clamp(30px,4vw,48px); margin-top:14px; line-height:1.05;}
+.section-head p{margin-top:16px; color:var(--cream-dim); font-size:15px; line-height:1.65; max-width:480px;}
+.divider{height:1px; background:var(--line); width:100%;}
+
+/* ---------- about / timeline ---------- */
+.timeline{position:relative; padding-left:2px;}
+.timeline-line{position:absolute; left:0; top:0; bottom:0; width:1px; background:var(--line);}
+.t-item{position:relative; padding:0 0 56px 40px; }
+.t-item:last-child{padding-bottom:0;}
+.t-dot{position:absolute; left:-5px; top:4px; width:11px; height:11px; border-radius:50%; background:var(--void); border:2px solid var(--amber);}
+.t-year{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--amber); letter-spacing:0.1em;}
+.t-title{font-family:'Fraunces',serif; font-size:22px; margin-top:8px;}
+.t-text{color:var(--cream-dim); font-size:14.5px; margin-top:8px; max-width:480px; line-height:1.6;}
+
+.about-grid{display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start;}
+.pillars{display:grid; gap:28px; margin-top:8px;}
+.pillar{padding:26px 0; border-top:1px solid var(--line);}
+.pillar h3{font-size:16px; font-weight:500; font-family:'Sora',sans-serif;}
+.pillar span{color:var(--amber); font-family:'JetBrains Mono',monospace; font-size:12px;}
+.pillar p{margin-top:10px; color:var(--cream-dim); font-size:14px; line-height:1.6;}
+
+/* ---------- menu ---------- */
+.menu-tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:44px;}
+.tab{
+  padding:10px 18px; border-radius:100px; font-size:13px; border:1px solid var(--line); color:var(--cream-dim);
+  transition:all .25s var(--ease);
+}
+.tab.active, .tab:hover{border-color:var(--amber); color:var(--amber);}
+.menu-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+.m-card{
+  background:var(--char); border:1px solid var(--line); border-radius:var(--radius);
+  overflow:hidden; position:relative; transition:transform .45s var(--ease), border-color .45s var(--ease);
+}
+.m-card:hover{transform:translateY(-6px); border-color:rgba(232,163,61,0.4);}
+.m-media{aspect-ratio:4/3; position:relative; overflow:hidden; background:radial-gradient(circle at 30% 20%, #3a2a1d, #17110d 70%);}
+.m-badges{position:absolute; top:12px; left:12px; display:flex; gap:6px; z-index:2;}
+.badge{font-family:'JetBrains Mono',monospace; font-size:10px; padding:4px 9px; border-radius:100px; letter-spacing:0.05em;}
+.badge.pop{background:var(--amber); color:#1c140f;}
+.badge.new{background:var(--cream); color:#1c140f;}
+.fav-btn{
+  position:absolute; top:12px; right:12px; z-index:2; width:32px; height:32px; border-radius:50%;
+  background:rgba(11,9,6,0.4); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:#efe6d8; transition:all .25s;
+}
+.fav-btn.active{color:#e8574a;}
+.m-glyph{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:64px; opacity:0.9; transition:transform .5s var(--ease);}
+.m-card:hover .m-glyph{transform:scale(1.08) rotate(-4deg);}
+.m-body{padding:20px 20px 22px;}
+.m-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+.m-name{font-family:'Fraunces',serif; font-size:18px;}
+.m-price{font-family:'JetBrains Mono',monospace; color:var(--amber); font-size:14px; white-space:nowrap;}
+.m-desc{color:var(--cream-dim); font-size:13px; margin-top:8px; line-height:1.55;}
+.m-meta{display:flex; justify-content:space-between; align-items:center; margin-top:16px;}
+.m-cal{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--cream-dim);}
+.add-btn{
+  font-size:12px; padding:8px 14px; border-radius:100px; border:1px solid var(--line); color:var(--cream);
+  transition:all .25s var(--ease);
+}
+.add-btn:hover{background:var(--amber); border-color:var(--amber); color:#1c140f;}
+
+/* ---------- hours ---------- */
+.hours-card{
+  background:linear-gradient(155deg, rgba(239,230,216,0.06), rgba(239,230,216,0.015));
+  border:1px solid var(--line); border-radius:20px; padding:8px;
+  backdrop-filter:blur(10px);
+}
+.hours-grid{display:grid; grid-template-columns:repeat(7,1fr);}
+.hour-cell{padding:26px 14px; text-align:center; border-right:1px solid var(--line);}
+.hour-cell:last-child{border-right:none;}
+.hour-cell.today{background:rgba(232,163,61,0.08); border-radius:14px;}
+.h-day{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; color:var(--amber);}
+.h-time{font-family:'Fraunces',serif; font-size:15px; margin-top:10px; line-height:1.4;}
+
+/* ---------- services ---------- */
+.svc-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+.svc{background:var(--void); padding:30px 22px; transition:background .3s;}
+.svc:hover{background:var(--char);}
+.svc-ic{font-size:22px;}
+.svc-name{font-size:13.5px; margin-top:14px;}
+
+/* ---------- gallery ---------- */
+.gallery{columns:4 220px; column-gap:14px;}
+.g-item{
+  break-inside:avoid; margin-bottom:14px; border-radius:10px; overflow:hidden; position:relative; cursor:zoom-in;
+  background:linear-gradient(160deg,#2a1d14,#120c08);
+}
+.g-item .g-fill{width:100%; display:flex; align-items:center; justify-content:center; font-size:40px;}
+.g-item::after{content:''; position:absolute; inset:0; background:rgba(11,9,6,0); transition:background .3s;}
+.g-item:hover::after{background:rgba(11,9,6,0.15);}
+
+.lightbox{
+  position:fixed; inset:0; background:rgba(6,4,3,0.92); z-index:200; display:none;
+  align-items:center; justify-content:center; backdrop-filter:blur(6px);
+}
+.lightbox.open{display:flex;}
+.lightbox-inner{font-size:120px;}
+.lightbox-close{position:absolute; top:28px; right:32px; color:#efe6d8; font-size:26px;}
+
+/* ---------- reviews ---------- */
+.rev-track{display:flex; gap:22px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:10px;}
+.rev-track::-webkit-scrollbar{display:none;}
+.r-card{
+  min-width:340px; scroll-snap-align:start; background:var(--char); border:1px solid var(--line); border-radius:var(--radius);
+  padding:28px;
+}
+.r-stars{color:var(--amber); font-size:14px; letter-spacing:2px;}
+.r-text{margin-top:16px; font-size:14.5px; line-height:1.65; color:var(--cream-dim); font-style:italic;}
+.r-who{display:flex; align-items:center; gap:12px; margin-top:22px;}
+.r-avatar{width:38px;height:38px;border-radius:50%; background:linear-gradient(135deg,var(--copper),var(--amber)); display:flex;align-items:center;justify-content:center; font-family:'Fraunces',serif; font-size:14px; color:#1c140f;}
+.r-name{font-size:13.5px;}
+.r-role{font-size:11.5px; color:var(--cream-dim);}
+
+/* ---------- contact ---------- */
+.contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:80px;}
+.field{margin-bottom:18px;}
+.field label{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--cream-dim);}
+.field input, .field textarea, .field select{
+  width:100%; background:transparent; border:none; border-bottom:1px solid var(--line);
+  padding:12px 0; color:var(--cream); font-size:15px; margin-top:8px; font-family:'Sora',sans-serif;
+}
+.field input:focus, .field textarea:focus, .field select:focus{outline:none; border-color:var(--amber);}
+.field select option{background:var(--char); color:var(--cream);}
+.contact-info{display:grid; gap:24px; align-content:start;}
+.ci-row{display:flex; gap:16px;}
+.ci-ic{width:38px;height:38px;border-radius:50%; border:1px solid var(--line); display:flex;align-items:center;justify-content:center; font-size:14px; flex-shrink:0;}
+.ci-label{font-size:11px; color:var(--amber); font-family:'JetBrains Mono',monospace; letter-spacing:0.08em;}
+.ci-val{margin-top:4px; font-size:14.5px;}
+.social-row{display:flex; gap:10px; margin-top:6px;}
+
+/* ---------- footer ---------- */
+footer{padding:80px 0 34px; border-top:1px solid var(--line);}
+.f-top{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:50px;}
+.f-brand{font-family:'Fraunces',serif; font-size:26px;}
+.f-brand span{color:var(--amber);}
+.f-tag{margin-top:14px; color:var(--cream-dim); font-size:13.5px; max-width:280px; line-height:1.6;}
+.f-col h4{font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--amber); font-family:'JetBrains Mono',monospace;}
+.f-col ul{margin-top:16px; display:grid; gap:10px;}
+.f-col a{font-size:13.5px; color:var(--cream-dim); transition:color .2s;}
+.f-col a:hover{color:var(--cream);}
+.newsletter{display:flex; margin-top:16px; border-bottom:1px solid var(--line); padding-bottom:8px;}
+.newsletter input{flex:1; background:none; border:none; color:var(--cream); font-size:13.5px;}
+.newsletter input:focus{outline:none;}
+.newsletter button{color:var(--amber); font-size:13px;}
+.f-bottom{display:flex; justify-content:space-between; margin-top:60px; padding-top:24px; border-top:1px solid var(--line); font-size:12px; color:var(--cream-dim); flex-wrap:wrap; gap:12px;}
+
+/* ---------- cart drawer ---------- */
+.cart-drawer{
+  position:fixed; top:0; right:-420px; width:400px; height:100%; background:var(--char); z-index:210;
+  border-left:1px solid var(--line); transition:right .5s var(--ease); display:flex; flex-direction:column;
+}
+.cart-drawer.open{right:0;}
+.cart-head{display:flex; justify-content:space-between; align-items:center; padding:26px; border-bottom:1px solid var(--line);}
+.cart-items{flex:1; overflow-y:auto; padding:10px 26px;}
+.cart-line{display:flex; justify-content:space-between; padding:16px 0; border-bottom:1px solid var(--line); font-size:14px;}
+.cart-empty{color:var(--cream-dim); font-size:13.5px; padding:30px 0; text-align:center;}
+.cart-foot{padding:26px; border-top:1px solid var(--line);}
+.cart-total{display:flex; justify-content:space-between; font-family:'Fraunces',serif; font-size:19px; margin-bottom:16px;}
+.scrim{position:fixed; inset:0; background:rgba(6,4,3,0.55); z-index:205; display:none;}
+.scrim.open{display:block;}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; bottom:28px; left:50%; transform:translate(-50%,20px); background:var(--cream); color:#1c140f;
+  padding:14px 22px; border-radius:100px; font-size:13px; z-index:300; opacity:0; transition:all .4s var(--ease); pointer-events:none;
+}
+.toast.show{opacity:1; transform:translate(-50%,0);}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0; transform:translateY(28px);}
+
+/* ---------- rtl ---------- */
+[dir="rtl"] .hero-headline, [dir="rtl"] .section-head, [dir="rtl"] .t-item, [dir="rtl"] .contact-info, [dir="rtl"] .f-tag{text-align:right;}
+[dir="rtl"] .timeline-line{left:auto; right:0;}
+[dir="rtl"] .t-item{padding:0 40px 56px 0;}
+[dir="rtl"] .t-dot{left:auto; right:-5px;}
+[dir="rtl"] .cart-drawer{right:auto; left:-420px; border-left:none; border-right:1px solid var(--line);}
+[dir="rtl"] .cart-drawer.open{left:0;}
+[dir="rtl"] body{font-family:'Sora',sans-serif;}
+
+/* ---------- responsive ---------- */
+@media(max-width:980px){
+  .about-grid, .contact-grid{grid-template-columns:1fr; gap:50px;}
+  .menu-grid{grid-template-columns:repeat(2,1fr);}
+  .svc-grid{grid-template-columns:repeat(2,1fr);}
+  .hours-grid{grid-template-columns:repeat(4,1fr);}
+  .hour-cell{border-right:none; border-bottom:1px solid var(--line); padding:18px;}
+  .f-top{grid-template-columns:1fr 1fr; gap:30px;}
+  .gallery{columns:2 160px;}
+  .cart-drawer{width:88%; right:-100%;}
+}
+@media(max-width:600px){
+  .menu-grid{grid-template-columns:1fr;}
+  .svc-grid{grid-template-columns:1fr 1fr;}
+  .hours-grid{grid-template-columns:repeat(2,1fr);}
+  section{padding:90px 0;}
+  .f-top{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="scrim" id="scrim"></div>
+
+<nav class="nav">
+  <div class="brand">EMBER <span>&</span> OAK</div>
+  <div class="nav-controls">
+    <button class="icon-btn lang-btn" id="langBtn" aria-label="Toggle language">EN</button>
+    <button class="icon-btn" id="modeBtn" aria-label="Toggle day and night">☾</button>
+    <button class="icon-btn" id="soundBtn" aria-label="Toggle ambient sound">♪</button>
+    <button class="icon-btn" id="cartBtn" aria-label="Open cart">☕<span id="cartCount" style="position:absolute;transform:translate(9px,-9px);background:#e8a33d;color:#1c140f;border-radius:50%;font-size:9px;width:15px;height:15px;display:none;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;"></span></button>
+  </div>
+</nav>
+
+<section class="hero" id="top">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-veil"></div>
+  <div class="hero-content">
+    <div class="hero-inner">
+      <div class="eyebrow" data-en="Est. 2016 — Ras Al Khaimah" data-ar="تأسست ٢٠١٦ — رأس الخيمة">Est. 2016 — Ras Al Khaimah</div>
+      <h1 class="hero-headline" data-en="Coffee, <em>slowed</em> down." data-ar="قهوة، <em>ببطء</em>.">Coffee, <em>slowed</em> down.</h1>
+      <p class="hero-sub" data-en="Small-batch roasts, hand-poured by people who taste every step. Come sit for a while." data-ar="تحميص بكميات صغيرة، يُحضَّر يدويًا بأيدٍ تتذوق كل خطوة. تعال واجلس لبعض الوقت.">Small-batch roasts, hand-poured by people who taste every step. Come sit for a while.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-solid" onclick="scrollToId('menu')" data-en="Explore Menu" data-ar="استعرض القائمة">Explore Menu</button>
+        <button class="btn btn-ghost" onclick="scrollToId('contact')" data-en="Reserve a Table" data-ar="احجز طاولة">Reserve a Table</button>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue" data-en="SCROLL" data-ar="مرر">SCROLL</div>
+</section>
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div>
+        <div class="eyebrow reveal" data-en="Our Story" data-ar="قصتنا">Our Story</div>
+        <h2 class="reveal" data-en="Built one cup, one regular, at a time." data-ar="بُنيت كوبًا تلو الآخر، وزبونًا دائمًا تلو الآخر.">Built one cup, one regular, at a time.</h2>
+        <div class="timeline" style="margin-top:48px;">
+          <div class="timeline-line"></div>
+          <div class="t-item reveal">
+            <div class="t-dot"></div>
+            <div class="t-year">2016</div>
+            <div class="t-title" data-en="A single window counter" data-ar="نافذة تقديم واحدة">A single window counter</div>
+            <div class="t-text" data-en="We started with one espresso machine and four bar stools, roasting in small batches so nothing sat around long enough to go stale." data-ar="بدأنا بماكينة إسبريسو واحدة وأربعة كراسي، نحمّص بكميات صغيرة حتى لا تفقد القهوة نكهتها.">We started with one espresso machine and four bar stools, roasting in small batches so nothing sat around long enough to go stale.</div>
+          </div>
+          <div class="t-item reveal">
+            <div class="t-dot"></div>
+            <div class="t-year">2019</div>
+            <div class="t-title" data-en="The roastery expands" data-ar="توسّع محمصتنا">The roastery expands</div>
+            <div class="t-text" data-en="Demand outgrew the back room, so we moved roasting into its own space and started sourcing direct from three family farms." data-ar="تجاوز الطلب الغرفة الخلفية، فانتقلنا بالتحميص إلى مساحة خاصة وبدأنا نشتري مباشرة من ثلاث مزارع عائلية.">Demand outgrew the back room, so we moved roasting into its own space and started sourcing direct from three family farms.</div>
+          </div>
+          <div class="t-item reveal">
+            <div class="t-dot"></div>
+            <div class="t-year">2023</div>
+            <div class="t-title" data-en="This room" data-ar="هذه القاعة">This room</div>
+            <div class="t-text" data-en="We built the space you're browsing right now — designed for lingering, with the machine still in plain view." data-ar="صممنا هذه المساحة التي تتصفحها الآن، لتكون مكانًا للبقاء طويلًا، مع إبقاء الماكينة في مرأى الجميع.">We built the space you're browsing right now — designed for lingering, with the machine still in plain view.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="pillars">
+          <div class="pillar reveal">
+            <span>01 · MISSION</span>
+            <h3 data-en="Slow the ritual down" data-ar="إبطاء الطقس">Slow the ritual down</h3>
+            <p data-en="Every cup is made to order, never batch-brewed and held. If there's a line, that's the point — good coffee takes a minute." data-ar="كل كوب يُحضّر عند الطلب، لا يُحفظ مسبقًا. إن كان هناك طابور، فهذا هو المقصود، فالقهوة الجيدة تستغرق دقيقة.">Every cup is made to order, never batch-brewed and held. If there's a line, that's the point — good coffee takes a minute.</p>
+          </div>
+          <div class="pillar reveal">
+            <span>02 · SOURCING</span>
+            <h3 data-en="Direct trade, named farms" data-ar="تجارة مباشرة، مزارع معروفة">Direct trade, named farms</h3>
+            <p data-en="We know the farmers behind our beans by name, and we pay above market rate every harvest." data-ar="نعرف المزارعين وراء حبوبنا بالاسم، وندفع أعلى من سعر السوق في كل موسم حصاد.">We know the farmers behind our beans by name, and we pay above market rate every harvest.</p>
+          </div>
+          <div class="pillar reveal">
+            <span>03 · SPACE</span>
+            <h3 data-en="A room to actually sit in" data-ar="مكان لتجلس فيه فعلاً">A room to actually sit in</h3>
+            <p data-en="No turnover targets. Bring a book, take a call, stay for the afternoon." data-ar="لا أهداف لسرعة الدوران. أحضر كتابًا، أجرِ مكالمة، وابقَ لبقية اليوم.">No turnover targets. Bring a book, take a call, stay for the afternoon.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<!-- ================= MENU ================= -->
+<section id="menu">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow" data-en="The Menu" data-ar="القائمة">The Menu</div>
+      <h2 data-en="Twelve ways to take your coffee." data-ar="اثنتا عشرة طريقة لتناول قهوتك.">Twelve ways to take your coffee.</h2>
+      <p data-en="Prices in AED. Everything is made fresh at the counter." data-ar="الأسعار بالدرهم الإماراتي. كل شيء يُحضّر طازجًا على الطاولة.">Prices in AED. Everything is made fresh at the counter.</p>
+    </div>
+    <div class="menu-tabs" id="menuTabs">
+      <button class="tab active" data-cat="all" data-en="All" data-ar="الكل">All</button>
+      <button class="tab" data-cat="espresso" data-en="Espresso Bar" data-ar="بار الإسبريسو">Espresso Bar</button>
+      <button class="tab" data-cat="brew" data-en="Slow Brew" data-ar="التحضير البطيء">Slow Brew</button>
+      <button class="tab" data-cat="bakery" data-en="Bakery" data-ar="مخبوزات">Bakery</button>
+    </div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<!-- ================= HOURS ================= -->
+<section id="hours">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow" data-en="Opening Hours" data-ar="ساعات العمل">Opening Hours</div>
+      <h2 data-en="We keep late hours on weekends." data-ar="نبقى مفتوحين لوقت متأخر في نهاية الأسبوع.">We keep late hours on weekends.</h2>
+    </div>
+    <div class="hours-card reveal">
+      <div class="hours-grid" id="hoursGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SERVICES ================= -->
+<section id="services" style="padding-top:0;">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow" data-en="On Site" data-ar="في الموقع">On Site</div>
+      <h2 data-en="What's here, besides the coffee." data-ar="ما هو متوفر هنا، إلى جانب القهوة.">What's here, besides the coffee.</h2>
+    </div>
+    <div class="svc-grid reveal" id="svcGrid"></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<!-- ================= GALLERY ================= -->
+<section id="gallery">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow" data-en="Gallery" data-ar="معرض الصور">Gallery</div>
+      <h2 data-en="The room, the light, the counter." data-ar="القاعة، الضوء، والطاولة.">The room, the light, the counter.</h2>
+    </div>
+    <div class="gallery reveal" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- ================= REVIEWS ================= -->
+<section id="reviews">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow" data-en="Regulars Say" data-ar="يقول روّادنا">Regulars Say</div>
+      <h2 data-en="Mostly, people come back." data-ar="غالبًا، الناس يعودون.">Mostly, people come back.</h2>
+    </div>
+    <div class="rev-track reveal" id="reviewTrack"></div>
+  </div>
+</section>
+
+<div class="wrap"><div class="divider"></div></div>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div>
+        <div class="eyebrow reveal" data-en="Reserve" data-ar="احجز">Reserve</div>
+        <h2 class="reveal" style="margin-bottom:34px;" data-en="Hold a table for later." data-ar="احجز طاولة لوقت لاحق.">Hold a table for later.</h2>
+        <form id="reserveForm" class="reveal" onsubmit="return submitReserve(event)">
+          <div class="field">
+            <label data-en="Name" data-ar="الاسم">Name</label>
+            <input type="text" required>
+          </div>
+          <div class="field">
+            <label data-en="Phone" data-ar="الهاتف">Phone</label>
+            <input type="tel" required>
+          </div>
+          <div class="field">
+            <label data-en="Party Size" data-ar="عدد الأشخاص">Party Size</label>
+            <select>
+              <option>1–2</option><option>3–4</option><option>5–6</option><option>7+</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-en="Preferred Time" data-ar="الوقت المفضل">Preferred Time</label>
+            <input type="time" required>
+          </div>
+          <button class="btn btn-solid" type="submit" style="margin-top:12px;" data-en="Confirm Reservation" data-ar="تأكيد الحجز">Confirm Reservation</button>
+        </form>
+      </div>
+      <div class="contact-info">
+        <div class="ci-row reveal">
+          <div class="ci-ic">☏</div>
+          <div><div class="ci-label" data-en="PHONE" data-ar="الهاتف">PHONE</div><div class="ci-val">+971 7 123 4567</div></div>
+        </div>
+        <div class="ci-row reveal">
+          <div class="ci-ic">✉</div>
+          <div><div class="ci-label" data-en="EMAIL" data-ar="البريد الإلكتروني">EMAIL</div><div class="ci-val">hello@emberoak.ae</div></div>
+        </div>
+        <div class="ci-row reveal">
+          <div class="ci-ic">⌖</div>
+          <div><div class="ci-label" data-en="ADDRESS" data-ar="العنوان">ADDRESS</div><div class="ci-val" data-en="Al Qawasim Corniche, Ras Al Khaimah" data-ar="كورنيش القواسم، رأس الخيمة">Al Qawasim Corniche, Ras Al Khaimah</div></div>
+        </div>
+        <div class="ci-row reveal">
+          <div class="ci-ic">◷</div>
+          <div><div class="ci-label" data-en="TODAY" data-ar="اليوم">TODAY</div><div class="ci-val" id="todayHours">—</div></div>
+        </div>
+        <div class="reveal" style="margin-top:8px;">
+          <div class="ci-label" data-en="FOLLOW" data-ar="تابعنا">FOLLOW</div>
+          <div class="social-row">
+            <a class="icon-btn" href="#" aria-label="Instagram">IG</a>
+            <a class="icon-btn" href="#" aria-label="TikTok">TT</a>
+            <a class="icon-btn" href="#" aria-label="WhatsApp">WA</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="f-top">
+      <div>
+        <div class="f-brand">EMBER <span>&</span> OAK</div>
+        <p class="f-tag" data-en="A slow coffee room on the Al Qawasim Corniche. Roasting since 2016." data-ar="قاعة قهوة هادئة على كورنيش القواسم. نحمّص منذ عام ٢٠١٦.">A slow coffee room on the Al Qawasim Corniche. Roasting since 2016.</p>
+        <div class="newsletter">
+          <input type="email" placeholder="Your email" data-en-ph="Your email" data-ar-ph="بريدك الإلكتروني">
+          <button onclick="joinNewsletter()" data-en="Join" data-ar="اشترك">Join</button>
+        </div>
+      </div>
+      <div class="f-col">
+        <h4 data-en="Explore" data-ar="استكشف">Explore</h4>
+        <ul>
+          <li><a href="#menu" data-en="Menu" data-ar="القائمة">Menu</a></li>
+          <li><a href="#about" data-en="Our Story" data-ar="قصتنا">Our Story</a></li>
+          <li><a href="#gallery" data-en="Gallery" data-ar="المعرض">Gallery</a></li>
+          <li><a href="#reviews" data-en="Reviews" data-ar="التقييمات">Reviews</a></li>
+        </ul>
+      </div>
+      <div class="f-col">
+        <h4 data-en="Visit" data-ar="زيارة">Visit</h4>
+        <ul>
+          <li><a href="#hours" data-en="Hours" data-ar="ساعات العمل">Hours</a></li>
+          <li><a href="#contact" data-en="Reserve" data-ar="احجز">Reserve</a></li>
+          <li><a href="#services" data-en="Services" data-ar="الخدمات">Services</a></li>
+        </ul>
+      </div>
+      <div class="f-col">
+        <h4 data-en="Company" data-ar="الشركة">Company</h4>
+        <ul>
+          <li><a href="#" data-en="Careers" data-ar="وظائف">Careers</a></li>
+          <li><a href="#" data-en="Wholesale" data-ar="بيع بالجملة">Wholesale</a></li>
+          <li><a href="#" data-en="Press" data-ar="الصحافة">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-bottom">
+      <div>© 2026 Ember & Oak Coffee Room. All rights reserved.</div>
+      <div data-en="Ras Al Khaimah, UAE" data-ar="رأس الخيمة، الإمارات">Ras Al Khaimah, UAE</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= CART DRAWER ================= -->
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3 data-en="Your Order" data-ar="طلبك">Your Order</h3>
+    <button class="icon-btn" onclick="toggleCart(false)">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty" data-en="Nothing here yet — add something from the menu." data-ar="لا يوجد شيء بعد، أضف شيئًا من القائمة.">Nothing here yet — add something from the menu.</div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total"><span data-en="Total" data-ar="الإجمالي">Total</span><span id="cartTotal">0 AED</span></div>
+    <button class="btn btn-solid" style="width:100%; justify-content:center;" onclick="checkout()" data-en="Checkout" data-ar="إتمام الطلب">Checkout</button>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <button class="lightbox-close">✕</button>
+  <div class="lightbox-inner" id="lightboxInner"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+/* =========================================================
+   STATE
+========================================================= */
+let LANG = 'en';
+let MODE = 'night';
+let CART = [];
+const money = n => n + ' AED';
+
+function toast(msgEn, msgAr){
+  const t = document.getElementById('toast');
+  t.textContent = LANG === 'en' ? msgEn : msgAr;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function scrollToId(id){
+  const el = document.getElementById(id);
+  if(el) window.lenis ? window.lenis.scrollTo(el) : el.scrollIntoView({behavior:'smooth'});
+}
+document.querySelectorAll('.nav a, .f-col a').forEach(a=>{
+  const href = a.getAttribute('href')||'';
+  if(href.startsWith('#') && href.length>1){
+    a.addEventListener('click', e=>{e.preventDefault(); scrollToId(href.slice(1));});
+  }
+});
+
+/* =========================================================
+   LANGUAGE TOGGLE
+========================================================= */
+function applyLanguage(){
+  document.documentElement.lang = LANG;
+  document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langBtn').textContent = LANG === 'en' ? 'EN' : 'ع';
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const val = LANG === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-ar');
+    if(val !== null) el.innerHTML = val;
+  });
+  document.querySelectorAll('[data-en-ph]').forEach(el=>{
+    el.placeholder = LANG === 'en' ? el.getAttribute('data-en-ph') : el.getAttribute('data-ar-ph');
+  });
+  renderMenu(currentCat);
+  renderHours();
+  renderServices();
+  renderGallery();
+  renderReviews();
+  renderCart();
+}
+document.getElementById('langBtn').addEventListener('click', ()=>{
+  LANG = LANG === 'en' ? 'ar' : 'en';
+  applyLanguage();
+});
+
+/* =========================================================
+   DAY / NIGHT TOGGLE
+========================================================= */
+function applyMode(){
+  document.body.setAttribute('data-mode', MODE);
+  document.getElementById('modeBtn').textContent = MODE === 'night' ? '☾' : '☀';
+  if(window.__setSceneMode) window.__setSceneMode(MODE);
+}
+document.getElementById('modeBtn').addEventListener('click', ()=>{
+  MODE = MODE === 'night' ? 'day' : 'night';
+  applyMode();
+});
+
+/* =========================================================
+   AMBIENT SOUND (synthesized — no external audio file)
+========================================================= */
+let audioCtx, soundOn = false, soundNodes = null;
+function startAmbient(){
+  audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+  const bufferSize = 2 * audioCtx.sampleRate;
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  let lastOut = 0;
+  for(let i=0;i<bufferSize;i++){
+    const white = Math.random()*2-1;
+    output[i] = (lastOut + (0.02*white)) / 1.02;
+    lastOut = output[i];
+    output[i] *= 3.5;
+  }
+  const noise = audioCtx.createBufferSource();
+  noise.buffer = noiseBuffer; noise.loop = true;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass'; filter.frequency.value = 700;
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0;
+  noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+  noise.start();
+  gain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 1.2);
+  soundNodes = {noise, gain};
+}
+document.getElementById('soundBtn').addEventListener('click', ()=>{
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').style.color = soundOn ? 'var(--amber)' : '';
+  if(soundOn){
+    if(!soundNodes) startAmbient();
+    else soundNodes.gain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime+0.8);
+  } else if(soundNodes){
+    soundNodes.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime+0.8);
+  }
+});
+
+/* =========================================================
+   MENU
+========================================================= */
+const MENU = [
+  {id:'esp', cat:'espresso', glyph:'☕', price:12, badge:null,
+    en:{name:'Espresso', desc:'A tight, syrupy double shot — the house benchmark.'}, ar:{name:'إسبريسو', desc:'جرعة مزدوجة كثيفة، هي المعيار الأساسي في محلنا.'}, cal:60},
+  {id:'ame', cat:'espresso', glyph:'☕', price:15, badge:null,
+    en:{name:'Americano', desc:'Espresso lengthened with hot water, still full-bodied.'}, ar:{name:'أمريكانو', desc:'إسبريسو ممدد بالماء الساخن، مع الحفاظ على القوام الكامل.'}, cal:15},
+  {id:'flw', cat:'espresso', glyph:'🥛', price:18, badge:'pop',
+    en:{name:'Flat White', desc:'Double ristretto under microfoam, no sweetness needed.'}, ar:{name:'فلات وايت', desc:'ريستريتو مزدوج تحت رغوة دقيقة، دون الحاجة لأي تحلية.'}, cal:150},
+  {id:'cap', cat:'espresso', glyph:'☕', price:17, badge:null,
+    en:{name:'Cappuccino', desc:'Equal thirds espresso, milk, and airy foam.'}, ar:{name:'كابتشينو', desc:'أثلاث متساوية من الإسبريسو والحليب والرغوة الخفيفة.'}, cal:120},
+  {id:'mac', cat:'espresso', glyph:'☕', price:16, badge:null,
+    en:{name:'Macchiato', desc:'Espresso "stained" with a dab of foamed milk.'}, ar:{name:'ماكياتو', desc:'إسبريسو ملطّخ بقليل من رغوة الحليب.'}, cal:35},
+  {id:'moc', cat:'espresso', glyph:'🍫', price:20, badge:null,
+    en:{name:'Mocha', desc:'Espresso, steamed milk, and dark drinking chocolate.'}, ar:{name:'موكا', desc:'إسبريسو، حليب مبخّر، وشوكولاتة داكنة للشرب.'}, cal:230},
+  {id:'spl', cat:'espresso', glyph:'🥛', price:22, badge:'new',
+    en:{name:'Spanish Latte', desc:'Espresso over condensed milk, gently sweet.'}, ar:{name:'سبانش لاتيه', desc:'إسبريسو فوق حليب مكثف، بحلاوة خفيفة.'}, cal:210},
+  {id:'cbr', cat:'brew', glyph:'🧊', price:19, badge:'pop',
+    en:{name:'Cold Brew', desc:'Steeped 18 hours, served over a single large cube.'}, ar:{name:'كولد برو', desc:'منقوعة لثماني عشرة ساعة، تُقدّم على مكعب ثلج واحد كبير.'}, cal:5},
+  {id:'v60', cat:'brew', glyph:'💧', price:24, badge:null,
+    en:{name:'V60 Pour-Over', desc:'Single-origin, brewed to order at your table.'}, ar:{name:'V60 بور أوفر', desc:'قهوة أحادية المصدر، تُحضّر عند الطلب على طاولتك.'}, cal:5},
+  {id:'chx', cat:'brew', glyph:'⏳', price:28, badge:'new',
+    en:{name:'Chemex', desc:'Clean and tea-like, brewed for the whole table to share.'}, ar:{name:'كيمكس', desc:'نكهة نظيفة أشبه بالشاي، تُحضّر ليشاركها الجميع على الطاولة.'}, cal:5},
+  {id:'tur', cat:'brew', glyph:'☕', price:20, badge:null,
+    en:{name:'Turkish Coffee', desc:'Sand-brewed, unfiltered, served with loukoum.'}, ar:{name:'قهوة تركية', desc:'تُحضّر على الرمل دون تصفية، تُقدّم مع الحلقوم.'}, cal:10},
+  {id:'mat', cat:'brew', glyph:'🍵', price:21, badge:null,
+    en:{name:'Matcha Latte', desc:'Ceremonial-grade matcha whisked with oat milk.'}, ar:{name:'ماتشا لاتيه', desc:'ماتشا من الدرجة الاحتفالية، تُخفق مع حليب الشوفان.'}, cal:140},
+  {id:'cro', cat:'bakery', glyph:'🥐', price:12, badge:null,
+    en:{name:'Butter Croissant', desc:'Laminated fresh each morning, 36 hours in the making.'}, ar:{name:'كرواسون بالزبدة', desc:'يُحضّر طازجًا كل صباح، بعد ٣٦ ساعة من التحضير.'}, cal:280},
+  {id:'chz', cat:'bakery', glyph:'🍰', price:24, badge:'pop',
+    en:{name:'Basque Cheesecake', desc:'Burnt-top, custard center, no crust.'}, ar:{name:'تشيز كيك باسك', desc:'محروقة السطح، بقلب كاسترد ناعم، بدون قاعدة.'}, cal:340},
+  {id:'brw', cat:'bakery', glyph:'🍫', price:18, badge:null,
+    en:{name:'Dark Cocoa Brownie', desc:'Fudgy center, crackled top, sea salt finish.'}, ar:{name:'براوني كاكاو داكن', desc:'قلب طري، سطح متشقق، لمسة ملح بحري.'}, cal:310},
+  {id:'ckl', cat:'bakery', glyph:'🍪', price:10, badge:null,
+    en:{name:'Tahini Cookies', desc:'Baked in-house, chewy center, crisp edge.'}, ar:{name:'كوكيز الطحينة', desc:'تُخبز في المحل، قلب طري وحواف مقرمشة.'}, cal:190},
+  {id:'snd', cat:'bakery', glyph:'🥪', price:26, badge:'new',
+    en:{name:'Halloumi Sandwich', desc:'Grilled halloumi, za\'atar, sourdough.'}, ar:{name:'ساندويش حلوم', desc:'حلوم مشوي مع الزعتر، على خبز العجين المخمر.'}, cal:420},
+];
+let currentCat = 'all';
+const favorites = new Set();
+
+function renderMenu(cat){
+  currentCat = cat;
+  const grid = document.getElementById('menuGrid');
+  grid.innerHTML = '';
+  MENU.filter(m => cat==='all' || m.cat===cat).forEach(m=>{
+    const t = LANG==='en' ? m.en : m.ar;
+    const card = document.createElement('div');
+    card.className = 'm-card reveal';
+    card.innerHTML = `
+      <div class="m-media">
+        <div class="m-badges">${m.badge ? `<span class="badge ${m.badge}">${m.badge==='pop' ? (LANG==='en'?'Popular':'الأكثر طلبًا') : (LANG==='en'?'New':'جديد')}</span>` : ''}</div>
+        <button class="fav-btn ${favorites.has(m.id)?'active':''}" aria-label="Favorite">${favorites.has(m.id)?'♥':'♡'}</button>
+        <div class="m-glyph">${m.glyph}</div>
+      </div>
+      <div class="m-body">
+        <div class="m-top"><div class="m-name">${t.name}</div><div class="m-price">${money(m.price)}</div></div>
+        <div class="m-desc">${t.desc}</div>
+        <div class="m-meta">
+          <div class="m-cal">${m.cal} ${LANG==='en'?'kcal':'سعرة'}</div>
+          <button class="add-btn">${LANG==='en'?'Add':'أضف'}</button>
+        </div>
+      </div>`;
+    card.querySelector('.fav-btn').addEventListener('click', e=>{
+      e.stopPropagation();
+      favorites.has(m.id) ? favorites.delete(m.id) : favorites.add(m.id);
+      renderMenu(currentCat);
+    });
+    card.querySelector('.add-btn').addEventListener('click', ()=> addToCart(m));
+    grid.appendChild(card);
+  });
+  refreshReveals();
+}
+document.getElementById('menuTabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tab');
+  if(!btn) return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderMenu(btn.dataset.cat);
+});
+
+/* =========================================================
+   CART
+========================================================= */
+function addToCart(item){
+  const line = CART.find(c=>c.id===item.id);
+  if(line) line.qty++;
+  else CART.push({id:item.id, qty:1, price:item.price, name: (LANG==='en'?item.en.name:item.ar.name)});
+  renderCart();
+  toast('Added to your order', 'أُضيف إلى طلبك');
+  toggleCart(true);
+}
+function renderCart(){
+  const wrap = document.getElementById('cartItems');
+  const count = document.getElementById('cartCount');
+  const totalEl = document.getElementById('cartTotal');
+  const totalQty = CART.reduce((s,c)=>s+c.qty,0);
+  count.style.display = totalQty ? 'flex' : 'none';
+  count.textContent = totalQty;
+  if(!CART.length){
+    wrap.innerHTML = `<div class="cart-empty">${LANG==='en'?'Nothing here yet — add something from the menu.':'لا يوجد شيء بعد، أضف شيئًا من القائمة.'}</div>`;
+  } else {
+    wrap.innerHTML = CART.map(c=>`
+      <div class="cart-line">
+        <span>${c.name} <span class="mono" style="color:var(--cream-dim);">×${c.qty}</span></span>
+        <span class="mono">${money(c.price*c.qty)}</span>
+      </div>`).join('');
+  }
+  totalEl.textContent = money(CART.reduce((s,c)=>s+c.price*c.qty,0));
+}
+function toggleCart(open){
+  document.getElementById('cartDrawer').classList.toggle('open', open);
+  document.getElementById('scrim').classList.toggle('open', open);
+}
+document.getElementById('cartBtn').addEventListener('click', ()=>toggleCart(true));
+document.getElementById('scrim').addEventListener('click', ()=>toggleCart(false));
+function checkout(){
+  if(!CART.length){ toast('Add something first', 'أضف شيئًا أولاً'); return; }
+  toast('Order placed — see you soon!', 'تم الطلب، نراك قريبًا!');
+  CART = [];
+  renderCart();
+  setTimeout(()=>toggleCart(false), 900);
+}
+
+/* =========================================================
+   HOURS
+========================================================= */
+const HOURS = [
+  {en:'Mon', ar:'الإثنين', t:'7:00 – 23:00'},
+  {en:'Tue', ar:'الثلاثاء', t:'7:00 – 23:00'},
+  {en:'Wed', ar:'الأربعاء', t:'7:00 – 23:00'},
+  {en:'Thu', ar:'الخميس', t:'7:00 – 00:00'},
+  {en:'Fri', ar:'الجمعة', t:'7:00 – 01:00'},
+  {en:'Sat', ar:'السبت', t:'8:00 – 01:00'},
+  {en:'Sun', ar:'الأحد', t:'8:00 – 23:00'},
+];
+function renderHours(){
+  const grid = document.getElementById('hoursGrid');
+  const todayIdx = (new Date().getDay()+6)%7; // Mon=0
+  grid.innerHTML = HOURS.map((h,i)=>`
+    <div class="hour-cell ${i===todayIdx?'today':''}">
+      <div class="h-day">${LANG==='en'?h.en:h.ar}</div>
+      <div class="h-time mono">${h.t}</div>
+    </div>`).join('');
+  document.getElementById('todayHours').textContent = HOURS[todayIdx].t;
+}
+
+/* =========================================================
+   SERVICES
+========================================================= */
+const SERVICES = [
+  {ic:'📶', en:'Free WiFi', ar:'واي فاي مجاني'},
+  {ic:'⛱', en:'Outdoor Seating', ar:'جلسة خارجية'},
+  {ic:'🪑', en:'Meeting Room', ar:'قاعة اجتماعات'},
+  {ic:'🚗', en:'Delivery', ar:'توصيل'},
+  {ic:'🥤', en:'Take Away', ar:'اطلب واذهب'},
+  {ic:'🔌', en:'Charging Points', ar:'نقاط شحن'},
+  {ic:'🐾', en:'Pet Friendly', ar:'مرحّب بالحيوانات'},
+  {ic:'🕌', en:'Prayer Room', ar:'غرفة صلاة'},
+];
+function renderServices(){
+  document.getElementById('svcGrid').innerHTML = SERVICES.map(s=>`
+    <div class="svc reveal">
+      <div class="svc-ic">${s.ic}</div>
+      <div class="svc-name">${LANG==='en'?s.en:s.ar}</div>
+    </div>`).join('');
+}
+
+/* =========================================================
+   GALLERY
+========================================================= */
+const GALLERY = [
+  {h:260, g:'☕'}, {h:180, g:'🌿'}, {h:220, g:'🫘'}, {h:300, g:'🪟'},
+  {h:190, g:'🥐'}, {h:250, g:'🔥'}, {h:210, g:'🍰'}, {h:170, g:'🕯️'},
+];
+function renderGallery(){
+  document.getElementById('galleryGrid').innerHTML = GALLERY.map(g=>`
+    <div class="g-item" onclick="openLightbox('${g.g}')">
+      <div class="g-fill" style="height:${g.h}px;">${g.g}</div>
+    </div>`).join('');
+}
+function openLightbox(glyph){
+  document.getElementById('lightboxInner').textContent = glyph;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+/* =========================================================
+   REVIEWS
+========================================================= */
+const REVIEWS = [
+  {name:'Sara M.', role:{en:'Regular since 2019', ar:'زبونة دائمة منذ ٢٠١٩'}, en:'The flat white here ruined every other flat white for me. I come three times a week.', ar:'الفلات وايت هنا أفسد عليّ أي فلات وايت آخر. آتي ثلاث مرات أسبوعيًا.'},
+  {name:'Omar K.', role:{en:'Works nearby', ar:'يعمل بالقرب'}, en:'Quiet enough for calls, comfortable enough to forget I have somewhere to be.', ar:'هادئ بما يكفي للمكالمات، ومريح لدرجة أنسى معها أن لدي مكانًا آخر لأذهب إليه.'},
+  {name:'Leila H.', role:{en:'First visit', ar:'زيارة أولى'}, en:'Ordered the V60 out of curiosity and ended up staying for two hours.', ar:'طلبت الـV60 بدافع الفضول، وانتهى بي المطاف بالبقاء ساعتين.'},
+  {name:'Yousef A.', role:{en:'Regular since 2017', ar:'زبون دائم منذ ٢٠١٧'}, en:'They remember my order, which shouldn\'t matter as much as it does.', ar:'يتذكرون طلبي، وهذا أمر يهمني أكثر مما ينبغي.'},
+];
+function renderReviews(){
+  document.getElementById('reviewTrack').innerHTML = REVIEWS.map(r=>`
+    <div class="r-card">
+      <div class="r-stars">★★★★★</div>
+      <div class="r-text">"${LANG==='en'?r.en:r.ar}"</div>
+      <div class="r-who">
+        <div class="r-avatar">${r.name[0]}</div>
+        <div><div class="r-name">${r.name}</div><div class="r-role">${LANG==='en'?r.role.en:r.role.ar}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function submitReserve(e){
+  e.preventDefault();
+  toast('Table request sent — we\'ll confirm by phone', 'تم إرسال طلب الحجز، سنؤكد عبر الهاتف');
+  e.target.reset();
+  return false;
+}
+function joinNewsletter(){
+  const input = document.querySelector('.newsletter input');
+  if(!input.value){ toast('Enter an email first', 'أدخل بريدًا إلكترونيًا أولاً'); return; }
+  toast('Subscribed — welcome in', 'تم الاشتراك، أهلاً بك');
+  input.value = '';
+}
+
+/* =========================================================
+   SMOOTH SCROLL (Lenis) + SCROLL REVEALS (GSAP)
+========================================================= */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+gsap.registerPlugin(ScrollTrigger);
+
+if(!reduceMotion && window.Lenis){
+  const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+  window.lenis = lenis;
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time)=>{ lenis.raf(time*1000); });
+  gsap.ticker.lagSmoothing(0);
+}
+
+function refreshReveals(){
+  ScrollTrigger.batch('.reveal', {
+    start:'top 88%',
+    onEnter: batch => gsap.to(batch, {opacity:1, y:0, duration:0.9, stagger:0.08, ease:'power3.out', overwrite:true}),
+    once:true
+  });
+  ScrollTrigger.refresh();
+}
+
+/* =========================================================
+   THREE.JS — HERO SCENE (procedural, no external 3D assets)
+========================================================= */
+(function initScene(){
+  const canvas = document.getElementById('hero-canvas');
+  const heroEl = document.getElementById('top');
+  let W = heroEl.clientWidth, H = heroEl.clientHeight;
+
+  const scene = new THREE.Scene();
+  const nightColor = new THREE.Color(0x0b0906);
+  const dayColor = new THREE.Color(0xefe6d8);
+  scene.background = nightColor.clone();
+  scene.fog = new THREE.FogExp2(nightColor.getHex(), 0.055);
+
+  const camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 100);
+  camera.position.set(0, 1.1, 7.2);
+
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(W, H);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  // lights
+  const ambient = new THREE.AmbientLight(0x6b4a34, 0.55);
+  scene.add(ambient);
+  const sun = new THREE.DirectionalLight(0xffd9a0, 0.9);
+  sun.position.set(4, 6, 3);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(1024,1024);
+  scene.add(sun);
+  const pendant = new THREE.PointLight(0xe8a33d, 2.4, 12, 2);
+  pendant.position.set(-1.1, 3.0, 1.6);
+  pendant.castShadow = true;
+  scene.add(pendant);
+  const rim = new THREE.PointLight(0xb5652b, 1.1, 14);
+  rim.position.set(2.5, 1.0, -2);
+  scene.add(rim);
+
+  // ground
+  const ground = new THREE.Mesh(
+    new THREE.CircleGeometry(9, 48),
+    new THREE.MeshStandardMaterial({color:0x120c08, roughness:0.9, metalness:0.05})
+  );
+  ground.rotation.x = -Math.PI/2;
+  ground.position.y = -1.35;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // --- coffee cup group ---
+  const cupGroup = new THREE.Group();
+  const cupMat = new THREE.MeshStandardMaterial({color:0xf4ede2, roughness:0.35, metalness:0.05});
+  const cupBody = new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.5,0.85,48,1,true), cupMat);
+  cupBody.castShadow = true;
+  cupGroup.add(cupBody);
+  const coffeeMat = new THREE.MeshStandardMaterial({color:0x2a180d, roughness:0.25, metalness:0.15});
+  const coffeeTop = new THREE.Mesh(new THREE.CircleGeometry(0.6,48), coffeeMat);
+  coffeeTop.rotation.x = -Math.PI/2;
+  coffeeTop.position.y = 0.42;
+  cupGroup.add(coffeeTop);
+  const cupBase = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.46,0.06,48), cupMat);
+  cupBase.position.y = -0.42;
+  cupGroup.add(cupBase);
+  const handleGeo = new THREE.TorusGeometry(0.32,0.08,16,32,Math.PI*1.3);
+  const handle = new THREE.Mesh(handleGeo, cupMat);
+  handle.position.set(0.62,0,0);
+  handle.rotation.z = Math.PI/2.4;
+  handle.rotation.y = Math.PI/2;
+  cupGroup.add(handle);
+  const saucer = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.05,64), cupMat);
+  saucer.position.y = -0.47;
+  saucer.receiveShadow = true;
+  cupGroup.add(saucer);
+  cupGroup.position.set(0.4,-0.15,0.6);
+  cupGroup.rotation.y = -0.4;
+  scene.add(cupGroup);
+  cupGroup.traverse(o=>{ if(o.isMesh){o.castShadow=true; o.receiveShadow=true;} });
+
+  // --- steam particles ---
+  const steamCount = 90;
+  const steamGeo = new THREE.BufferGeometry();
+  const steamPos = new Float32Array(steamCount*3);
+  const steamSeed = new Float32Array(steamCount);
+  for(let i=0;i<steamCount;i++){
+    steamPos[i*3] = (Math.random()-0.5)*0.3;
+    steamPos[i*3+1] = Math.random()*1.4;
+    steamPos[i*3+2] = (Math.random()-0.5)*0.3;
+    steamSeed[i] = Math.random()*10;
+  }
+  steamGeo.setAttribute('position', new THREE.BufferAttribute(steamPos,3));
+  const steamMat = new THREE.PointsMaterial({color:0xe8e0d2, size:0.09, transparent:true, opacity:0.35, depthWrite:false, blending:THREE.AdditiveBlending});
+  const steam = new THREE.Points(steamGeo, steamMat);
+  steam.position.set(cupGroup.position.x, cupGroup.position.y+0.45, cupGroup.position.z);
+  scene.add(steam);
+
+  // --- floating coffee beans ---
+  const beanCount = 55;
+  const beanGeo = new THREE.SphereGeometry(1,10,8);
+  const beanMat = new THREE.MeshStandardMaterial({color:0x4a2c1a, roughness:0.55, metalness:0.1});
+  const beans = new THREE.InstancedMesh(beanGeo, beanMat, beanCount);
+  beans.castShadow = true;
+  const beanData = [];
+  const dummy = new THREE.Object3D();
+  for(let i=0;i<beanCount;i++){
+    const radius = 2.2 + Math.random()*4.5;
+    const angle = Math.random()*Math.PI*2;
+    const y = (Math.random()-0.5)*3.4;
+    const scl = 0.05 + Math.random()*0.05;
+    beanData.push({radius, angle, y, scl, speed:0.05+Math.random()*0.1, wobble:Math.random()*Math.PI*2});
+    dummy.position.set(Math.cos(angle)*radius, y, Math.sin(angle)*radius - 1);
+    dummy.scale.set(scl, scl*0.7, scl*1.15);
+    dummy.rotation.set(Math.random()*6,Math.random()*6,Math.random()*6);
+    dummy.updateMatrix();
+    beans.setMatrixAt(i, dummy.matrix);
+  }
+  scene.add(beans);
+
+  // resize
+  function onResize(){
+    W = heroEl.clientWidth; H = heroEl.clientHeight;
+    camera.aspect = W/H; camera.updateProjectionMatrix();
+    renderer.setSize(W,H);
+  }
+  window.addEventListener('resize', onResize);
+
+  // mouse parallax
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('pointermove', e=>{
+    mouseX = (e.clientX / window.innerWidth - 0.5);
+    mouseY = (e.clientY / window.innerHeight - 0.5);
+  });
+
+  // day/night mode switch
+  window.__setSceneMode = function(mode){
+    const target = mode === 'day' ? dayColor : nightColor;
+    gsap.to(scene.fog.color, {r:target.r,g:target.g,b:target.b, duration:1});
+    gsap.to(scene.background, {r:target.r,g:target.g,b:target.b, duration:1});
+    gsap.to(ambient, {intensity: mode==='day' ? 0.9 : 0.55, duration:1});
+    gsap.to(sun, {intensity: mode==='day' ? 1.4 : 0.9, duration:1});
+    gsap.to(pendant, {intensity: mode==='day' ? 1.2 : 2.4, duration:1});
+  };
+
+  // scroll-driven camera dolly + pour moment
+  if(!reduceMotion){
+    gsap.timeline({
+      scrollTrigger:{ trigger:'#top', start:'top top', end:'bottom top', scrub:0.6 }
+    })
+    .to(camera.position, {z:4.6, y:1.6, x:-0.6, ease:'none'}, 0)
+    .to(cupGroup.rotation, {z:0.5, ease:'none'}, 0);
+  }
+
+  const clock = new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    camera.position.x += (mouseX*0.6 - (camera.position.x - (camera.userTargetX||0))) * 0.02;
+    camera.lookAt(0.3, 0.1, 0);
+
+    // steam rise
+    const pos = steam.geometry.attributes.position;
+    for(let i=0;i<steamCount;i++){
+      let y = pos.array[i*3+1] + 0.006 + Math.sin(t+steamSeed[i])*0.0006;
+      if(y > 1.5) y = 0;
+      pos.array[i*3+1] = y;
+      pos.array[i*3] += Math.sin(t*0.6+steamSeed[i])*0.0007;
+    }
+    pos.needsUpdate = true;
+    steamMat.opacity = 0.3 + Math.sin(t*0.5)*0.05;
+
+    // beans drift
+    for(let i=0;i<beanCount;i++){
+      const b = beanData[i];
+      const a = b.angle + t*b.speed*0.1;
+      dummy.position.set(Math.cos(a)*b.radius, b.y + Math.sin(t*0.4+b.wobble)*0.15, Math.sin(a)*b.radius - 1);
+      dummy.scale.set(b.scl, b.scl*0.7, b.scl*1.15);
+      dummy.rotation.set(t*0.2+b.wobble, t*0.15, t*0.1);
+      dummy.updateMatrix();
+      beans.setMatrixAt(i, dummy.matrix);
+    }
+    beans.instanceMatrix.needsUpdate = true;
+
+    pendant.intensity += Math.sin(t*3.3)*0.01;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+/* =========================================================
+   BOOTSTRAP
+========================================================= */
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderMenu('all');
+  renderHours();
+  renderServices();
+  renderGallery();
+  renderReviews();
+  renderCart();
+  applyLanguage();
+  applyMode();
+  setTimeout(refreshReveals, 200);
+});
+</script>
+</body>
+</html>
